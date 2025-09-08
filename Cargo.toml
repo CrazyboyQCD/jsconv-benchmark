@@ -1,0 +1,13 @@
+[package]
+name = "jsconv_aarch64"
+version = "0.1.0"
+edition = "2024"
+
+[[bench]]
+name = "jsconv"
+harness = false
+
+[dependencies]
+
+[dev-dependencies]
+criterion2 = "3.0.2"
