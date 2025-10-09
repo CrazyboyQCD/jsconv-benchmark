@@ -18,5 +18,28 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
+      - name: Display CPU info (Linux/macOS)
+        if: matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest'
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            echo "=== CPU Information ==="
+            lscpu
+            echo "=== Memory Information ==="
+            free -h
+          else
+            echo "=== CPU Information ==="
+            sysctl -a | grep machdep.cpu
+            echo "=== Hardware Overview ==="
+            system_profiler SPHardwareDataType
+          fi
+        shell: bash
+      - name: Display CPU info (Windows)
+        if: matrix.os == 'windows-11-arm'
+        run: |
+          echo "=== CPU Information ==="
+          Get-WmiObject -Class Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed
+          echo "=== System Information ==="
+          systeminfo
+        shell: pwsh
       - name: bench
         run: cargo bench
