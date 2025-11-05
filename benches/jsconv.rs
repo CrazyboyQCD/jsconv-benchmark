@@ -2,7 +2,10 @@ use std::hint::black_box;
 
 use criterion::{Criterion, criterion_group, criterion_main};
 
-use jsconv_aarch64::{f64_to_int32_arm64, f64_to_int32_generic};
+use jsconv_aarch64::f64_to_int32_aarch64;
+use jsconv_aarch64::f64_to_int32_aarch64_core_intrinsics;
+use jsconv_aarch64::f64_to_int32_aarch64_reverse;
+use jsconv_aarch64::f64_to_int32_generic;
 
 fn bench_jsconv(c: &mut Criterion) {
     let fixtures = [
@@ -24,13 +27,13 @@ fn bench_jsconv(c: &mut Criterion) {
 
     for (i, &num) in fixtures.iter().enumerate() {
         assert_eq!(
-            unsafe { f64_to_int32_arm64(num) },
+            unsafe { f64_to_int32_aarch64(num) },
             f64_to_int32_generic(num),
             "fixtures[{i}]: {num}",
         );
     }
 
-    c.bench_function("generic", |b| {
+    c.bench_function("f64_to_int32_generic", |b| {
         b.iter(|| {
             for fixture in fixtures {
                 black_box(f64_to_int32_generic(fixture));
@@ -38,10 +41,26 @@ fn bench_jsconv(c: &mut Criterion) {
         });
     });
 
-    c.bench_function("jsconv_with_atomics", |b| {
+    c.bench_function("f64_to_int32_aarch64_core_intrinsics", |b| {
         b.iter(|| {
             for fixture in fixtures {
-                black_box(unsafe { f64_to_int32_arm64(fixture) });
+                black_box(unsafe { f64_to_int32_aarch64_core_intrinsics(fixture) });
+            }
+        });
+    });
+
+    c.bench_function("f64_to_int32_aarch64", |b| {
+        b.iter(|| {
+            for fixture in fixtures {
+                black_box(unsafe { f64_to_int32_aarch64(fixture) });
+            }
+        });
+    });
+
+    c.bench_function("f64_to_int32_aarch64_reverse", |b| {
+        b.iter(|| {
+            for fixture in fixtures {
+                black_box(unsafe { f64_to_int32_aarch64_reverse(fixture) });
             }
         });
     });

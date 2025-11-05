@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Install rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: stable
+          toolchain: nightly
       - name: Display CPU info (Linux/macOS)
         if: matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest'
         run: |

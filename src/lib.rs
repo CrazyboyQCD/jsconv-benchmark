@@ -1,13 +1,42 @@
+#![feature(stdarch_aarch64_jscvt)]
+
 #[target_feature(enable = "jsconv")]
-pub unsafe fn f64_to_int32_arm64(number: f64) -> i32 {
-    if !std::arch::is_aarch64_feature_detected!("jsconv") {
+pub unsafe fn f64_to_int32_aarch64_core_intrinsics(number: f64) -> i32 {
+    if std::arch::is_aarch64_feature_detected!("jsconv") {
+        std::arch::aarch64::__jcvt(number)
+    } else {
+        f64_to_int32_generic(number)
+    }
+}
+
+#[target_feature(enable = "jsconv")]
+pub unsafe fn f64_to_int32_aarch64(number: f64) -> i32 {
+    if std::arch::is_aarch64_feature_detected!("jsconv") {
         let ret: i32;
-        // SAFETY: Number is not nan so no floating-point exception should throw.
         unsafe {
             std::arch::asm!(
                 "fjcvtzs {dst:w}, {src:d}",
                 src = in(vreg) number,
                 dst = out(reg) ret,
+                options(nostack, nomem, pure),
+            );
+        }
+        ret
+    } else {
+        f64_to_int32_generic(number)
+    }
+}
+
+#[target_feature(enable = "jsconv")]
+pub unsafe fn f64_to_int32_aarch64_reverse(number: f64) -> i32 {
+    if !std::arch::is_aarch64_feature_detected!("jsconv") {
+        let ret: i32;
+        unsafe {
+            std::arch::asm!(
+                "fjcvtzs {dst:w}, {src:d}",
+                src = in(vreg) number,
+                dst = out(reg) ret,
+                options(nostack, nomem, pure),
             );
         }
         ret
